@@ -141,12 +141,10 @@ public class reservation extends javax.swing.JFrame {
         left = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        txtname = new javax.swing.JTextField();
         txtaddress = new javax.swing.JTextField();
         txtcheckin = new com.toedter.calendar.JDateChooser();
         txtcheckout = new com.toedter.calendar.JDateChooser();
@@ -182,9 +180,6 @@ public class reservation extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel2.setText("Reservation No");
 
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel3.setText("Name");
-
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel4.setText("Address");
 
@@ -196,9 +191,6 @@ public class reservation extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel7.setText("Check out");
-
-        txtname.setMinimumSize(new java.awt.Dimension(64, 30));
-        txtname.setPreferredSize(new java.awt.Dimension(71, 25));
 
         txtaddress.setPreferredSize(new java.awt.Dimension(71, 30));
 
@@ -246,7 +238,6 @@ public class reservation extends javax.swing.JFrame {
                     .addGroup(leftLayout.createSequentialGroup()
                         .addGap(70, 70, 70)
                         .addGroup(leftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(txtname, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1)
                             .addComponent(txtmobile, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtaddress, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -261,8 +252,7 @@ public class reservation extends javax.swing.JFrame {
                             .addComponent(jButton5)
                             .addGroup(leftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jLabel5)
-                                .addComponent(jLabel4)
-                                .addComponent(jLabel3))
+                                .addComponent(jLabel4))
                             .addComponent(jLabel6)
                             .addComponent(jLabel7)
                             .addComponent(jLabel8)
@@ -283,11 +273,7 @@ public class reservation extends javax.swing.JFrame {
                 .addGroup(leftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel12))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(leftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addComponent(txtname, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(43, 43, 43)
                 .addGroup(leftLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtaddress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4))
@@ -441,14 +427,13 @@ public class reservation extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-     String reserveID = jLabel12.getText();
-    String name = txtname.getText().trim();
+    String reserveID = jLabel12.getText();
     String address = txtaddress.getText().trim();
     String mobile = txtmobile.getText().trim();
 
     // Validate inputs
     if (txtcheckin.getDate() == null || txtcheckout.getDate() == null || 
-        name.isEmpty() || address.isEmpty() || mobile.isEmpty() ||
+        address.isEmpty() || mobile.isEmpty() ||
         txtrtype.getSelectedIndex() == -1 || txtbtype.getSelectedIndex() == -1 || 
         txtro.getSelectedIndex() == -1) {
 
@@ -478,6 +463,21 @@ public class reservation extends javax.swing.JFrame {
     }
 
     try {
+        // Fetch the logged-in user's name
+        String userName = null;
+        pat = con.prepareStatement("SELECT Firstname FROM user WHERE userID = ?");
+        pat.setInt(1, Login.UID);
+        ResultSet rs = pat.executeQuery();
+        if (rs.next()) {
+            userName = rs.getString("Firstname");
+        }
+
+        // Ensure user's name is found
+        if (userName == null) {
+            JOptionPane.showMessageDialog(this, "User not found.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Calculate the number of nights
         long diffInMillis = txtcheckout.getDate().getTime() - txtcheckin.getDate().getTime();
         long numberOfNights = diffInMillis / (1000 * 60 * 60 * 24); // Convert milliseconds to days
@@ -486,7 +486,7 @@ public class reservation extends javax.swing.JFrame {
         double roomAmountPerNight = 0;
         pat = con.prepareStatement("SELECT Amount FROM room WHERE roomID = ?");
         pat.setString(1, roomNo);
-        ResultSet rs = pat.executeQuery();
+        rs = pat.executeQuery();
         if (rs.next()) {
             roomAmountPerNight = rs.getDouble("Amount");
         }
@@ -494,13 +494,13 @@ public class reservation extends javax.swing.JFrame {
         // Calculate the total amount
         double totalAmount = numberOfNights * roomAmountPerNight;
 
-        // Check if the room is already booked during the selected dates (excluding other users' reservations)
+        // Check if the room is already booked during the selected dates
         pat = con.prepareStatement(
             "SELECT * FROM reservation WHERE roomNo = ? AND ( " +
             "(CheckIn BETWEEN ? AND ?) OR " + 
             "(CheckOut BETWEEN ? AND ?) OR " + 
             "(CheckIn <= ? AND CheckOut >= ?)" + 
-            ") AND userID != ?"  // Exclude reservations by other users
+            ")"
         );
 
         pat.setString(1, roomNo);
@@ -510,7 +510,6 @@ public class reservation extends javax.swing.JFrame {
         pat.setString(5, EndDate);
         pat.setString(6, StartDate);
         pat.setString(7, EndDate);
-        pat.setInt(8, Login.UID);  // Exclude current user
 
         rs = pat.executeQuery();
         if (rs.next()) {
@@ -526,7 +525,7 @@ public class reservation extends javax.swing.JFrame {
 
         pat.setString(1, reserveID);
         pat.setInt(2, Login.UID);  // Use the logged-in user's ID
-        pat.setString(3, name);
+        pat.setString(3, userName);  // Use the fetched user's name
         pat.setString(4, address);
         pat.setString(5, mobile);
         pat.setString(6, StartDate);
@@ -535,7 +534,7 @@ public class reservation extends javax.swing.JFrame {
         pat.setString(9, roomNo);
         pat.setString(10, roomType);
         pat.setDouble(11, totalAmount);
-        pat.setString(12, "Pending");  // Set the status to 'Pending'
+        pat.setString(12, "Approved");  // Set the status to 'Pending'
 
         pat.executeUpdate();
 
@@ -548,19 +547,19 @@ public class reservation extends javax.swing.JFrame {
         dispose();
 
     } catch (SQLException ex) {
+        ex.printStackTrace(); 
         Logger.getLogger(room.class.getName()).log(Level.SEVERE, null, ex);
     }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    String reserveID = jLabel12.getText();
-    String name = txtname.getText().trim();
+     String reserveID = jLabel12.getText();
     String address = txtaddress.getText().trim();
     String mobile = txtmobile.getText().trim();
 
     // Validate inputs  
     if (txtcheckin.getDate() == null || txtcheckout.getDate() == null || 
-        name.isEmpty() || address.isEmpty() || mobile.isEmpty() ||
+         address.isEmpty() || mobile.isEmpty() ||
         txtrtype.getSelectedIndex() == -1 || txtbtype.getSelectedIndex() == -1 || 
         txtro.getSelectedIndex() == -1) {
         JOptionPane.showMessageDialog(this, "Please fill in all fields", "Missing Information", JOptionPane.WARNING_MESSAGE);
@@ -589,7 +588,21 @@ public class reservation extends javax.swing.JFrame {
     }
 
     try {
-        // 1. Check the current status of the reservation
+        // 1. Fetch the logged-in user's name
+        String userName = null;
+        pat = con.prepareStatement("SELECT Firstname FROM user WHERE userID = ?");
+        pat.setInt(1, Login.UID);
+        ResultSet rsUser = pat.executeQuery();
+        if (rsUser.next()) {
+            userName = rsUser.getString("Firstname");
+        }
+
+        if (userName == null) {
+            JOptionPane.showMessageDialog(this, "Unable to retrieve user information.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 2. Check the current status of the reservation
         pat = con.prepareStatement("SELECT status FROM reservation WHERE reserveID = ? AND userID = ?");
         pat.setString(1, reserveID);
         pat.setInt(2, Login.UID);  // Ensure user is the logged-in user
@@ -597,18 +610,15 @@ public class reservation extends javax.swing.JFrame {
         
         if (rsStatus.next()) {
             String status = rsStatus.getString("status");
-            System.out.println("Checking reservation with ID: " + reserveID);  // Debugging log
-            System.out.println("Query result: Status = " + status);  // Debugging log
 
             // Check if the reservation is approved
             if ("approved".equalsIgnoreCase(status)) {
-                // If approved, just show a message and return
                 JOptionPane.showMessageDialog(this, "This reservation is approved and cannot be edited.");
                 return;  // Prevent further action if the reservation is approved
             }
         }
 
-        // 2. If the reservation is not approved, proceed with the update process
+        // 3. Calculate the number of nights
         long diffInMillis = txtcheckout.getDate().getTime() - txtcheckin.getDate().getTime();
         long numberOfNights = diffInMillis / (1000 * 60 * 60 * 24); // Convert milliseconds to days
 
@@ -622,7 +632,7 @@ public class reservation extends javax.swing.JFrame {
 
         double totalAmount = numberOfNights * roomAmountPerNight;
 
-        // 3. Check if the room is already booked during the selected dates
+        // 4. Check if the room is already booked during the selected dates
         pat = con.prepareStatement(
             "SELECT * FROM reservation WHERE roomNo = ? AND ( " +
             "(CheckIn BETWEEN ? AND ?) OR " + 
@@ -645,13 +655,13 @@ public class reservation extends javax.swing.JFrame {
             return;
         }
 
-        // 4. Update the reservation if all checks pass
+        // 5. Update the reservation if all checks pass
         pat = con.prepareStatement(
             "UPDATE reservation SET Name = ?, Address = ?, MobileNo = ?, CheckIn = ?, CheckOut = ?, bedType = ?, roomNo = ?, roomType = ?, amount = ? " +
             "WHERE reserveID = ? AND userID = ?"
         );
 
-        pat.setString(1, name);
+        pat.setString(1, userName);  // Use the fetched user's name
         pat.setString(2, address);
         pat.setString(3, mobile);
         pat.setString(4, StartDate);
@@ -666,7 +676,7 @@ public class reservation extends javax.swing.JFrame {
         pat.executeUpdate();
         JOptionPane.showMessageDialog(this, "Reservation updated successfully.");
 
-        // 5. Refresh the table after update
+        // 6. Refresh the table after update
         Load_reservation(); // This function should reload data into the table
         
     } catch (SQLException ex) {
@@ -695,13 +705,12 @@ private double getRoomRate(String roomNo) {
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         // Get the selected row index
        // Get the currently selected row index
-    int selectedRow = jTable1.getSelectedRow();
+  int selectedRow = jTable1.getSelectedRow();
 
     // Check if the same row is clicked again
     if (selectedRow == previouslySelectedRow) {
         // Clear all fields
         jLabel12.setText("");
-        txtname.setText("");
         txtaddress.setText("");
         txtmobile.setText("");
         txtcheckin.setDate(null);
@@ -709,7 +718,6 @@ private double getRoomRate(String roomNo) {
         txtrtype.setSelectedIndex(-1);
         txtbtype.setSelectedIndex(-1);
         txtro.setSelectedIndex(-1);
-      
 
         // Enable the Add button
         jButton1.setEnabled(true);
@@ -728,8 +736,17 @@ private double getRoomRate(String roomNo) {
                 // Set Reserve ID (column 0)
                 jLabel12.setText(jTable1.getValueAt(selectedRow, 0) != null ? jTable1.getValueAt(selectedRow, 0).toString() : "");
 
-                // Set Name (column 1)
-                txtname.setText(jTable1.getValueAt(selectedRow, 1) != null ? jTable1.getValueAt(selectedRow, 1).toString() : "");
+                // Fetch and set Name based on the userID
+                String userName = null;
+                pat = con.prepareStatement("SELECT Firstname FROM user WHERE userID = ?");
+                pat.setInt(1, Login.UID);
+                ResultSet rsName = pat.executeQuery();
+                if (rsName.next()) {
+                    userName = rsName.getString("Firstname");
+                }
+                // Set the name to the fetched user name
+                // You can add a label or a hidden text field to hold the name if needed
+                // If necessary, you could update the name somewhere else in your UI, but if you don't need it, you can skip this part
 
                 // Set Address (column 2)
                 txtaddress.setText(jTable1.getValueAt(selectedRow, 2) != null ? jTable1.getValueAt(selectedRow, 2).toString() : "");
@@ -755,9 +772,6 @@ private double getRoomRate(String roomNo) {
                 txtrtype.setSelectedItem(jTable1.getValueAt(selectedRow, 6) != null ? jTable1.getValueAt(selectedRow, 6).toString() : "");
                 txtbtype.setSelectedItem(jTable1.getValueAt(selectedRow, 7) != null ? jTable1.getValueAt(selectedRow, 7).toString() : "");
                 txtro.setSelectedItem(jTable1.getValueAt(selectedRow, 8) != null ? jTable1.getValueAt(selectedRow, 8).toString() : "");
-
-                // Set the amount (column 9)
-              
 
                 // Disable the Add button to avoid accidental additions
                 jButton1.setEnabled(false);
@@ -803,7 +817,7 @@ private double getRoomRate(String roomNo) {
 
                 // Clear the form fields
                 jLabel12.setText("");
-                txtname.setText("");
+              
                 txtaddress.setText("");
                 txtmobile.setText("");
                 txtcheckin.setDate(null);
@@ -831,7 +845,7 @@ private double getRoomRate(String roomNo) {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-        txtname.setText("");
+        
             txtaddress.setText("");
             txtmobile.setText("");
             txtcheckin.setDate(null);
@@ -858,9 +872,17 @@ private double getRoomRate(String roomNo) {
     }//GEN-LAST:event_txtrtypeActionPerformed
  public void Load_reservation() {
     try {
-        // Use a parameterized query to prevent SQL injection
-        pat = con.prepareStatement("SELECT * FROM reservation WHERE userID = ?");
-        pat.setInt(1, Login.UID); // Use Login.UID to fetch only the current user's reservations
+        // Use a JOIN to fetch the user's name from the users table
+        String query = """
+                SELECT r.ReserveID, u.Firstname, r.Address, r.MobileNo, r.CheckIn, r.CheckOut, 
+                       r.roomType, r.roomNo, r.bedType, r.amount, r.status
+                FROM reservation r
+                JOIN user u ON r.userID = u.userID
+                WHERE r.userID = ?
+                """;
+
+        pat = con.prepareStatement(query);
+        pat.setInt(1, Login.UID); // Fetch reservations for the current user
         ResultSet rs = pat.executeQuery();
 
         // Get table model and clear existing rows
@@ -871,7 +893,7 @@ private double getRoomRate(String roomNo) {
             // Create a new row with values for the current reservation
             Vector<String> v2 = new Vector<>();
             v2.add(rs.getString("ReserveID"));
-            v2.add(rs.getString("Name"));
+            v2.add(rs.getString("Firstname")); // Fetch the name from the users table
             v2.add(rs.getString("Address"));
             v2.add(rs.getString("MobileNo"));
             v2.add(rs.getString("CheckIn"));
@@ -943,7 +965,6 @@ private double getRoomRate(String roomNo) {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -960,7 +981,6 @@ private double getRoomRate(String roomNo) {
     private com.toedter.calendar.JDateChooser txtcheckin;
     private com.toedter.calendar.JDateChooser txtcheckout;
     private javax.swing.JTextField txtmobile;
-    private javax.swing.JTextField txtname;
     private javax.swing.JComboBox<String> txtro;
     private javax.swing.JComboBox<String> txtrtype;
     // End of variables declaration//GEN-END:variables

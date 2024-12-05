@@ -16,7 +16,7 @@ import java.sql.Statement;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-
+import hotel.user;
 /**
  *
  * @author ziamdriel03
@@ -112,6 +112,8 @@ public class Login extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
+
+        txtusname.setForeground(new java.awt.Color(204, 0, 255));
 
         spass.setText("Show Password");
         spass.addActionListener(new java.awt.event.ActionListener() {
@@ -246,7 +248,8 @@ public class Login extends javax.swing.JFrame {
                     if (storedPassword.equals(password)) {
                         // Correct user credentials
                         UID = rs.getInt("UserID");
-                        Dashboard clientDashboard = new Dashboard();
+                       String us = rs.getString("Username");
+                        finalclient clientDashboard = new finalclient(us);
                         clientDashboard.setVisible(true);
                         dispose();
                     } else {

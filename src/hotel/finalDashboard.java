@@ -532,6 +532,8 @@ public void Load_reservation() {
         jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel10.setText("Amount");
 
+        jTable1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jTable1.setForeground(new java.awt.Color(204, 0, 255));
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -551,6 +553,7 @@ public void Load_reservation() {
                 return types [columnIndex];
             }
         });
+        jTable1.setRowHeight(40);
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable1MouseClicked(evt);
@@ -682,6 +685,8 @@ public void Load_reservation() {
 
         jPanel8.setBackground(new java.awt.Color(255, 255, 255));
 
+        jTable3.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
+        jTable3.setForeground(new java.awt.Color(204, 0, 255));
         jTable3.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null, null, null, null, null, null},
@@ -701,6 +706,7 @@ public void Load_reservation() {
                 return types [columnIndex];
             }
         });
+        jTable3.setRowHeight(40);
         jTable3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable3MouseClicked(evt);
@@ -728,12 +734,15 @@ public void Load_reservation() {
             }
         });
 
+        jTextField1.setForeground(new java.awt.Color(204, 0, 255));
         jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField1KeyReleased(evt);
             }
         });
 
+        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(204, 0, 255));
         jLabel11.setText("Search");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
@@ -760,9 +769,9 @@ public void Load_reservation() {
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
                 .addGap(34, 34, 34)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel11)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -776,6 +785,8 @@ public void Load_reservation() {
 
         jPanel9.setBackground(new java.awt.Color(255, 255, 255));
 
+        jTable2.setFont(new java.awt.Font("Segoe UI", 0, 11)); // NOI18N
+        jTable2.setForeground(new java.awt.Color(204, 0, 255));
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
@@ -795,6 +806,7 @@ public void Load_reservation() {
                 return types [columnIndex];
             }
         });
+        jTable2.setRowHeight(40);
         jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable2MouseClicked(evt);
@@ -812,12 +824,16 @@ public void Load_reservation() {
             }
         });
 
+        jTextField2.setForeground(new java.awt.Color(204, 0, 255));
         jTextField2.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField2KeyReleased(evt);
             }
         });
 
+        jLabel22.setBackground(new java.awt.Color(204, 0, 255));
+        jLabel22.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel22.setForeground(new java.awt.Color(204, 0, 255));
         jLabel22.setText("Search");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
@@ -833,9 +849,9 @@ public void Load_reservation() {
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel22, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(40, 40, 40)
+                .addComponent(jLabel22)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -843,7 +859,7 @@ public void Load_reservation() {
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel22))
                 .addGap(18, 18, 18)
@@ -1405,7 +1421,7 @@ public void Search(){
 
         // If no results were found, show a message
         if (!hasResults) {
-            JOptionPane.showMessageDialog(this, "No reservations found for the given search query.", "No Results", JOptionPane.INFORMATION_MESSAGE);
+            
         }
 
     } catch (SQLException ex) {
@@ -1473,7 +1489,7 @@ public void Search2(){
 
         // If no results were found, show a message
         if (!hasResults) {
-            JOptionPane.showMessageDialog(this, "No users found for the given search query.", "No Results", JOptionPane.INFORMATION_MESSAGE);
+          
         }
 
     } catch (SQLException ex) {
