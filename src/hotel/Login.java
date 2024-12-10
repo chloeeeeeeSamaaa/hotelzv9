@@ -248,8 +248,8 @@ public class Login extends javax.swing.JFrame {
                     if (storedPassword.equals(password)) {
                         // Correct user credentials
                         UID = rs.getInt("UserID");
-                       String us = rs.getString("Username");
-                        finalclient clientDashboard = new finalclient(us);
+                  
+                        finalclient clientDashboard = new finalclient();
                         clientDashboard.setVisible(true);
                         dispose();
                     } else {

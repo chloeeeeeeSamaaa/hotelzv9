@@ -206,58 +206,63 @@ public class payment extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         String paymentMethod = cmbPaymentMethod.getSelectedItem().toString();
-        String paymentAmountText = txtPayment.getText().trim();
+    String paymentAmountText = txtPayment.getText().trim();
 
-        // Validate the payment amount
-        if (paymentAmountText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter the payment amount.", "Missing Information", JOptionPane.WARNING_MESSAGE);
+    // Validate the payment amount
+    if (paymentAmountText.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter the payment amount.", "Missing Information", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    try {
+        double paymentAmount = Double.parseDouble(paymentAmountText);
+
+        // Fetch the total amount
+        double totalAmount = Double.parseDouble(jLabel2.getText());
+
+        // Fetch the logged-in user's username
+        int UserID = Login.UID;  // Use the logged-in user's ID
+        String username = getLoggedInUsername(UserID); // Call getLoggedInUsername method to fetch the username
+
+        if (username == null || username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Username not found. Unable to proceed.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        try {
-            double paymentAmount = Double.parseDouble(paymentAmountText);
-
-            // Validate that the payment amount matches the total amount
-            double totalAmount = Double.parseDouble(jLabel2.getText());
-
-            // Check payment conditions for GCash
-            if ("GCash".equalsIgnoreCase(paymentMethod)) {
-                if (paymentAmount != totalAmount) {
-                    JOptionPane.showMessageDialog(this, "GCash payment must be exactly the total amount.", "Payment Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            } else {
-                if (paymentAmount < totalAmount) {
-                    JOptionPane.showMessageDialog(this, "Insufficient payment amount.", "Payment Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-
-            // Fetch the logged-in user's username
-            int UserID = Login.UID;  // Use the logged-in user's ID
-            us = getLoggedInUsername(UserID); // Call getLoggedInUsername method to fetch the username
-
-            if (us == null || us.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Username not found. Unable to proceed.", "Error", JOptionPane.ERROR_MESSAGE);
+        // Validate payment conditions
+        if ("GCash".equalsIgnoreCase(paymentMethod)) {
+            if (paymentAmount != totalAmount) {
+                JOptionPane.showMessageDialog(this, "GCash payment must be exactly the total amount.", "Payment Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            // Insert payment into the database
-            insertPayment(UserID, paymentMethod, paymentAmount);
-
-            // Display a success message
-            JOptionPane.showMessageDialog(this, "Payment of " + paymentAmount + " via " + paymentMethod + " processed successfully!", "Payment Successful", JOptionPane.INFORMATION_MESSAGE);
-
-            // Pass the username to the finalclient frame
-            finalclient obj = new finalclient(us);
-            obj.setVisible(true);
-
-            // Dispose of the payment frame
-            dispose();
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid payment amount. Please enter a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        } else if (paymentAmount < totalAmount) {
+            JOptionPane.showMessageDialog(this, "Insufficient payment amount.", "Payment Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        // Calculate change for overpayment (for Cash or PayMaya)
+        double change = paymentAmount - totalAmount;
+        if (change > 0) {
+            JOptionPane.showMessageDialog(this, "Your change is: " + String.format("%.2f", change), "Change", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        // Store only the total amount in the database
+        insertPayment(UserID, paymentMethod, totalAmount);
+
+        // Display a success message
+        JOptionPane.showMessageDialog(this, "Payment of " + totalAmount + " via " + paymentMethod + " processed successfully!", "Payment Successful", JOptionPane.INFORMATION_MESSAGE);
+
+        // Pass the username to the finalclient frame
+        finalclient obj = new finalclient();
+        
+        obj.setVisible(true);
+
+        // Dispose of the payment frame
+        dispose();
+
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Invalid payment amount. Please enter a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtPaymentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPaymentActionPerformed
@@ -282,20 +287,20 @@ public class payment extends javax.swing.JFrame {
     }
 
     private void insertPayment(int userID, String paymentMethod, double paymentAmount) {
-        try {
-            // Insert payment into the payments table without the reserveID column
-            String query = "INSERT INTO payments (userID, paymentMethod, paymentAmount) VALUES (?, ?, ?)";
-            PreparedStatement pat = con.prepareStatement(query);
-            pat.setInt(1, userID);
-            pat.setString(2, paymentMethod);
-            pat.setDouble(3, paymentAmount);
+    try {
+        // Insert payment into the payments table
+        String query = "INSERT INTO payments (userID, paymentMethod, paymentAmount) VALUES (?, ?, ?)";
+        PreparedStatement pat = con.prepareStatement(query);
+        pat.setInt(1, userID);
+        pat.setString(2, paymentMethod);
+        pat.setDouble(3, paymentAmount);
 
-            // Execute the query
-            pat.executeUpdate();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error processing payment: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
+        // Execute the query
+        pat.executeUpdate();
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error processing payment: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

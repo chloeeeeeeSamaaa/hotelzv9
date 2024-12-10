@@ -320,7 +320,11 @@ public class user extends javax.swing.JFrame {
 
             // Always clear passwordArray after using
             java.util.Arrays.fill(passwordArray, '0');
-
+             if (p.length() < 8) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
+           ps.setText("");
+            return; // Exit the method if password is too short
+             }
             // Check if the username already exists in the database
             pat = con.prepareStatement("SELECT COUNT(*) FROM user WHERE Username = ?");
             pat.setString(1, us);
