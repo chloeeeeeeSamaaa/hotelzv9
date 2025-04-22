@@ -1,0 +1,132 @@
+import java.util.Scanner;
+
+class LinearSearch {
+    public int search(int[] arr, int target) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == target) {
+                return i;
+            }
+        }
+        return -1;
+    }
+}
+
+class BinarySearch {
+    public int search(int[] arr, int target) {
+        int left = 0, right = arr.length - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (arr[mid] == target)
+                return mid;
+            else if (arr[mid] < target)
+                left = mid + 1;
+            else
+                right = mid - 1;
+        }
+        return -1;
+    }
+}
+
+class JumpSearch {
+    public int search(int[] arr, int target) {
+        int n = arr.length;
+        int step = (int) Math.floor(Math.sqrt(n));
+        int prev = 0;
+
+        while (arr[Math.min(step, n) - 1] < target) {
+            prev = step;
+            step += (int) Math.floor(Math.sqrt(n));
+            if (prev >= n)
+                return -1;
+        }
+
+        for (int i = prev; i < Math.min(step, n); i++) {
+            if (arr[i] == target)
+                return i;
+        }
+
+        return -1;
+    }
+}
+
+class ExponentialSearch {
+    public int search(int[] arr, int target) {
+        if (arr[0] == target)
+            return 0;
+
+        int i = 1;
+        while (i < arr.length && arr[i] <= target) {
+            i *= 2;
+        }
+
+        return binarySearch(arr, i / 2, Math.min(i, arr.length - 1), target);
+    }
+
+    private int binarySearch(int[] arr, int left, int right, int target) {
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (arr[mid] == target)
+                return mid;
+            else if (arr[mid] < target)
+                left = mid + 1;
+            else
+                right = mid - 1;
+        }
+        return -1;
+    }
+}
+
+public class Act4_Searching_Lastname {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Choose a searching algorithm to perform:");
+        System.out.println("1. Linear Search");
+        System.out.println("2. Binary Search");
+        System.out.println("3. Jump Search");
+        System.out.println("4. Exponential Search");
+
+        System.out.print("Enter your choice (1-4): ");
+        int choice = sc.nextInt();
+
+        System.out.print("Enter the number of elements: ");
+        int n = sc.nextInt();
+
+        int[] elements = new int[n];
+        System.out.println("Enter the elements");
+        for (int i = 0; i < n; i++) {
+            elements[i] = sc.nextInt();
+        }
+
+        System.out.print("Enter the target value: ");
+        int target = sc.nextInt();
+
+        int result = -1;
+
+        switch (choice) {
+            case 1:
+                result = new LinearSearch().search(elements, target);
+                break;
+            case 2:
+                result = new BinarySearch().search(elements, target);
+                break;
+            case 3:
+                result = new JumpSearch().search(elements, target);
+                break;
+            case 4:
+                result = new ExponentialSearch().search(elements, target);
+                break;
+            default:
+                System.out.println("Invalid choice.");
+                System.exit(0);
+        }
+
+        if (result != -1) {
+            System.out.println("Search result: Element is found at index " + result + ".");
+        } else {
+            System.out.println("Search result: Element is not found.");
+        }
+
+        sc.close();
+    }
+}
